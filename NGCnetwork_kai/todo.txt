@@ -1,0 +1,22 @@
+・node.hにあるfactor.hの調査
+・network以外に使用されているcmap, vallistなどを調査し、utilディレクトリ自体を消していく
+・BDDをcudd使用版に
+
+
+完了
+・cmapをunordered_mapにした際の変数初期化部分について検討
+・警告を消す
+・array, cmapの削除
+
+・node_marimo.h, node_center.hの作成 -> 7/27の14:00?
+・変数，関数名名の変更
+
+・nodeetrav.h, cppの邪悪な依存関係改善
+・dfsorderなどの1メソッドに対する実装がかなり長いものはどうするか
+・network.cpp, node.cppの関数をフレンドにしたので，プライベートに総移動
+・arrayintについて
+ - vectorをprotected継承したクラスを作る or vectorを包含したクラスを作る
+ - util.hに関数みたいなのを作る -> こっち
+
+ ・network.cppのtodo: 超重要部分について
+ - さっさとchangeOrderをどうにかする

@@ -1,0 +1,190 @@
+// 警告の消し方
+comparison between signed and unsigned integer expressions
+- for(int i=0; i<v.size())とかの時．v.size()は確かsize_tのunsigned int型
+- int -> unsigned int にする or 
+- コンパイルオプションに-Wno-sign-compareを入れる（すべきでない）
+
+deprecated conversion from string constant to ‘char*’
+- stringとchar*へのキャストが不明確
+http://eternuement.blogspot.jp/2011/03/c-stringcharstringchar.html
+- (char*)"文字列"にキャストする
+
+warning: suggest parentheses around ‘&&’ within ‘||’
+http://d.hatena.ne.jp/eel3/20110528/1306594077
+- &&をカッコで囲む
+-- ex a && b || c -> (a && b) || c
+
+// メモ
+isop = 非冗長sop
+sop = 積和標準形
+factored form = 掛け算や()もある形？
+cube = 項
+spec = BDD
+
+// nodeとnetworkでidepthやodepthをそれぞれ管理しようとしているように見える問題
+- calcIlevAll
+- clearIlevAll
+- clearelevAll
+とかも関係
+
+   std::string nameRep; // networkの名前
+
+    // todo: 型変更
+    Arrayw<Node*>       primaryI;  // primaryI[1] .. primaryI[numPI]
+    Arrayw<Node*>       primaryO;  // primaryO[1] .. primaryO[numPO]
+    Arrayw<Node*>       intNode;   // intNode[1] ...
+    Node*               constant0; // marimo: ?
+    Node*               constant1; // marimo: ?
+
+    // todo: 型変更
+    SopM            allcube;      // 変数順はファイルの通り
+    Array<Sop>      sopPO;        // POのSop，変数順はlev2piidxによる
+
+    int             numConnect;   // 回路の結線数
+    int             numLevel;     // 回路の最大パス長
+    int             numNode;      // ノードの数
+
+    // todo: いる?
+    int             curNodeIndex; // 現在のノードのインデックス
+    int             curPIindex;   // 現在の外部入力のインデックス
+    int             curPOindex;   // 現在の外部出力のインデックス
+
+    // todo: いる?
+    bool                PIorigName;
+    bool                POorigName;
+
+    // todo: 型変更
+    Cmap<std::string,Node*>*    name2node;   // 名前の一意性の保証のため
+    enum              { DELETED_NODE = -1 }; // todo: 型
+    // 一度登録されたが削除されたNodeを表す
+
+    int                 newNodeNameID;
+    void                createNameIfNot(Node* node);
+    void                check_change_name(Node* node);
+
+    // todo: 謎
+    // これらはobsoleteにしたいが，multi()等が絡んでいて出来ない．
+    // int			func_global;	// 各Nodeの内部関数が回路全体で一意か
+
+    void    setName(const char* nm);    // 名前の設定
+
+    // plaの回路を作るときに使用
+    void    create_ilb(int n_pi, std::string *pi_names);
+    void    create_ob(int n_po, std::string *po_names);
+    SopM    readCube(FILE *fp, int numPI, int numPO);
+
+    // blifの回路を作るときに使用
+    void    create_inputs();
+    void    create_outputs();
+    void    fix_output_name(); // todo: いらないんじゃね
+    void    create_names(FILE* filep);
+    void    create_names2(FILE* filep); // todo: いらないんじゃね
+    Node*   newGateName(char *c, enum node_types tpe);
+    // Cube = 項, sop = 積和標準系
+    Sop     readCubeSingle(FILE *fp, int numPI, int& invert); // 内部論理の計算
+
+    // todo: 型変換（char* -> string?）
+    char*   aline;
+    int     alineSize;
+    int     row;
+
+protected:
+    // todo: 型変換
+    Arrayw<Node*>&   getPIlist();
+    void    dfsOrder(ValList<Node*>& vlist); // todo: 謎
+
+    /* (pla,blif) PIorder によって計算される */
+    // todo: 型変換
+    Arrayint           lev2piidx;  // BddのlevelからPIの番号
+    Cmap<void*,int>    variables;  // Node毎の変数のBddのlevel(設定されていれば)
+
+    /* calAllSpec(Pla,Blif) によって計算される */
+    // todo: 型変換
+    // 謎: 外部入力に対するBDD?
+    Cmap<void*,Bdd>    outfuncs;    // Node毎のoutfunc.
+    Array<Bdd>         specPO;      // POが満たすべき関数．不完全指定．
+
+    // todo: 型変換
+    Cmap<void*,int>    idepths;    // 外部入力からの段数の最大値
+    Cmap<void*,int>    odepths;    // 外部出力までの段数の最大値
+
+
+### network.h
+変数
+numConnect -> num_connect
+numLevel -> num_level
+numNode -> num_node
+curNodeIndex -> cur_node_idx
+curPOindex -> curPI_idx
+curPOindex -> curPO_idx
+PIorigName -> PIorig_name
+POorigName -> POorig_name
+newNodeNameID -> new_node_nameID
+
+// node.h
+
+関数
+check_change_name -> checkChangeName
+create_ilb -> createIlb
+create_ob -> createOb
+print_cost -> printCost
+getLevel2indexFrom0 -> getLev2IdxFrom0
+cal_outfunc_all -> calcOutfuncAll
+cal_idepth_all -> calcIdepthAll
+cal_odepth_all -> calcOdepthAll
+clear_outfunc_all(); ->
+clear_idepth_all(); ->
+clear_odepth_all(); ->
+TrimNodeName(); -> trimNodeName
+CopyPOname -> copyPOname
+curNodeIndexReserve -> reserveCurNodeIdx
+curNodeIndexRestore -> restoreCurNodeIdx
+curPOIndexReserve -> reserveCurPOIdx
+curPOIndexRestore -> restoreCurPOIdx
+Get_idepths -> getIdepths
+Get_odepths -> getOdepths
+Cal_idepth -> calcIdepth
+Clear_idepth -> clearIdepth
+Cal_odepth -> calcOdepth
+Clear_odepth -> clearOdepth
+Cal_outfunc -> calcOutfunc
+Clear_outfunc -> clearOutfunc
+ReCal_idepth_recursive -> reCalcIdepth
+ReCal_odepth_recursive -> reCalcOdepth
+ReCal_outfunc_recursive -> reCalcOutfunc
+newSubNet -> createSubNet
+InsertSubNet -> insertSubNet
+InsertSubNetWithNode -> insertSubNetWithNode
+cal_num_connection -> calcNumConnection
+compress_intNode -> compressIntNode
+ReadFileName -> readFileName
+WriteFileNameBlif -> writeFileNameBlif
+outBlif_no_change -> writeBlifNoChange
+GetSpecPO -> getSpecPO
+PrinInfoForDebug -> printInfoForDebug
+PrintInfo -> printInfo
+newNode -> createNode
+newPI -> createPI
+newPO -> createPO
+
+// node.h
+cal_func -> calFunc
+cal_sop -> calSop
+cal_sop_first -> calSopFirst
+cal_func_sub -> calFuncSub
+print_blif -> printBlif
+print_name -> printName
+print_blif_before_output -> printBlifBeforeOutput
+print_blif_before_output_no_change -> printBlifBeforeOutputNoChange
+print_blif_no_change -> printBlifNoChange
+
+IsKa -> isImmediateSuccessor
+SuccessorKa -> isSuccessor
+IpKa -> isImmediatePredecessor
+PredecessorKa -> isPredecessor
+check -> checkType
+connectInput_sub -> connectInputSub
+connectInput_core -> connectInputCore
+rec_cal_func -> recCalcFunc
+cal_sop_sub -> calcSopSub
+check_before_output -> checkBeforeOutput
